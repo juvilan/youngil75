@@ -1,1 +1,228 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>나이스 미등재 연수 입력</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,"Noto Sans KR",sans-serif;margin:0;background:#f6f7fb}
+    .wrap{max-width:720px;margin:40px auto;padding:0 16px}
+    .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:18px 18px 14px}
+    h1{font-size:20px;margin:0 0 12px}
+    .row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center;margin:10px 0}
+    label{font-size:14px;color:#333}
+    input,select,textarea{width:100%;padding:10px 10px;border:1px solid #d7dbe7;border-radius:10px;font-size:14px}
+    textarea{min-height:90px;resize:vertical}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .primary{background:#2b6cff;color:#fff}
+    .ghost{background:#eef2ff;color:#2b6cff}
+    .danger{background:#ffecec;color:#d21b1b}
+    .muted{color:#666;font-size:13px;line-height:1.4;margin-top:10px}
+    .hide{display:none}
+    .msg{margin-top:10px;font-size:14px}
+    .ok{color:#1a7f37}
+    .err{color:#b42318}
+    .topnote{background:#fff7d6;border:1px solid #ffe08a;color:#5a4600;padding:10px 12px;border-radius:12px;margin-bottom:12px}
+    code{background:#f2f4f8;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topnote">
+      <div style="font-weight:700;margin-bottom:4px;">안내</div>
+      <div style="font-size:13px;line-height:1.4;">
+        ※ <b>나이스(NEIS)에 자동 누적되는 연수</b>는 입력하지 마세요.<br/>
+        ※ 제출 후 표시되는 <b>접수번호</b>를 메모해 두세요.
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginCard" class="card">
+      <h1>교사 인증</h1>
+      <div class="row">
+        <label>이름</label>
+        <input id="teacher" placeholder="예: 홍길동" />
+      </div>
+      <div class="row">
+        <label>PIN(4자리)</label>
+        <input id="pin" inputmode="numeric" maxlength="4" placeholder="0000" />
+      </div>
+      <div class="btns">
+        <button class="primary" onclick="login()">로그인</button>
+      </div>
+      <div id="loginMsg" class="msg"></div>
+    </div>
+
+    <!-- FORM -->
+    <div id="formCard" class="card hide">
+      <h1>연수 입력</h1>
+
+      <div class="row">
+        <label>로그인 사용자</label>
+        <input id="who" disabled />
+      </div>
+
+      <div class="row">
+        <label>연수 일자</label>
+        <input id="date" type="date" />
+      </div>
+
+      <div class="row">
+        <label>연수 시간</label>
+        <input id="hours" type="number" min="0.5" step="0.5" placeholder="예: 3" />
+      </div>
+
+      <div class="row">
+        <label>연수명</label>
+        <input id="title" placeholder="예: 2025 나이스 담당자 맞춤형 연수" />
+      </div>
+
+      <div class="row">
+        <label>유형</label>
+        <select id="type">
+          <option value="">선택</option>
+          <option value="출장형 연수">출장형 연수</option>
+          <option value="직무 관련 원격연수">직무 관련 원격연수</option>
+          <option value="교내 자체 연수">교내 자체 연수</option>
+          <option value="기타(NEIS 미연동)">기타(NEIS 미연동)</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>비고</label>
+        <textarea id="notes" placeholder="선택 입력"></textarea>
+      </div>
+
+      <div class="btns">
+        <button class="primary" onclick="submitEntry()">제출</button>
+        <button class="ghost" onclick="logout()">로그아웃</button>
+      </div>
+
+      <div id="submitMsg" class="msg"></div>
+      <div class="muted">
+        (증빙 PDF 업로드 연결은 다음 단계에서 <b>접수번호(reqId)</b> 기반으로 붙이면 됩니다.)
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ✅ 여기에 본인 Apps Script 웹앱 URL 넣기
+  // 예: https://script.google.com/macros/s/AKfycb.../exec
+  const API_URL = "여기에_웹앱_URL";
+
+  const els = {
+    loginCard: document.getElementById('loginCard'),
+    formCard: document.getElementById('formCard'),
+    teacher: document.getElementById('teacher'),
+    pin: document.getElementById('pin'),
+    who: document.getElementById('who'),
+    date: document.getElementById('date'),
+    hours: document.getElementById('hours'),
+    title: document.getElementById('title'),
+    type: document.getElementById('type'),
+    notes: document.getElementById('notes'),
+    loginMsg: document.getElementById('loginMsg'),
+    submitMsg: document.getElementById('submitMsg'),
+  };
+
+  function setMsg(el, text, ok=true) {
+    el.className = "msg " + (ok ? "ok" : "err");
+    el.textContent = text || "";
+  }
+
+  function getToken() {
+    return localStorage.getItem('sessToken') || "";
+  }
+
+  function setToken(t) {
+    localStorage.setItem('sessToken', t);
+  }
+
+  function clearToken() {
+    localStorage.removeItem('sessToken');
+    localStorage.removeItem('sessTeacher');
+  }
+
+  function showApp() {
+    const t = getToken();
+    const name = localStorage.getItem('sessTeacher') || "";
+    if (t && name) {
+      els.loginCard.classList.add('hide');
+      els.formCard.classList.remove('hide');
+      els.who.value = name;
+    } else {
+      els.formCard.classList.add('hide');
+      els.loginCard.classList.remove('hide');
+    }
+  }
+
+  async function post(path, payload) {
+    const url = API_URL + "?path=" + encodeURIComponent(path);
+    const res = await fetch(url, {
+      method: "POST",
+      // Apps Script 호환성 때문에 text/plain 권장
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function login() {
+    setMsg(els.loginMsg, "");
+    const teacher = els.teacher.value.trim();
+    const pin = els.pin.value.trim();
+
+    const r = await post("auth", { teacher, pin });
+    if (!r.ok) {
+      setMsg(els.loginMsg, "로그인 실패", false);
+      return;
+    }
+    setToken(r.token);
+    localStorage.setItem('sessTeacher', r.teacher);
+    setMsg(els.loginMsg, "로그인 성공", true);
+    showApp();
+  }
+
+  async function submitEntry() {
+    setMsg(els.submitMsg, "");
+
+    const token = getToken();
+    const payload = {
+      token,
+      date: els.date.value,
+      hours: els.hours.value,
+      title: els.title.value.trim(),
+      type: els.type.value,
+      notes: els.notes.value.trim(),
+    };
+
+    const r = await post("submit", payload);
+    if (!r.ok) {
+      setMsg(els.submitMsg, "제출 실패: " + (r.error || ""), false);
+      if (r.error === "session_expired") {
+        clearToken();
+        showApp();
+      }
+      return;
+    }
+    setMsg(els.submitMsg, "등록 완료! 접수번호: " + r.reqId, true);
+
+    // 입력값 일부 초기화(선택)
+    els.title.value = "";
+    els.notes.value = "";
+    els.hours.value = "";
+    els.type.value = "";
+  }
+
+  function logout() {
+    clearToken();
+    showApp();
+  }
+
+  // 자동 로그인(토큰 있으면)
+  showApp();
+</script>
+</body>
+</html>
 
