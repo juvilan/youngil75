@@ -2,83 +2,164 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>나이스 미등재 연수 입력</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
+  <title>나이스 미등재 연수 보조장부</title>
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,"Noto Sans KR",sans-serif;margin:0;background:#f6f7fb}
-    .wrap{max-width:720px;margin:40px auto;padding:0 16px}
-    .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:18px 18px 14px}
-    h1{font-size:20px;margin:0 0 12px}
-    .row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center;margin:10px 0}
-    label{font-size:14px;color:#333}
-    input,select,textarea{width:100%;padding:10px 10px;border:1px solid #d7dbe7;border-radius:10px;font-size:14px}
-    textarea{min-height:90px;resize:vertical}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .primary{background:#2b6cff;color:#fff}
-    .ghost{background:#eef2ff;color:#2b6cff}
+    :root{
+      --bg:#f6f7fb; --card:#fff; --text:#111; --muted:#666;
+      --line:#d7dbe7; --shadow:0 8px 22px rgba(0,0,0,.07);
+      --primary:#2b6cff; --primary2:#eef2ff; --danger:#b42318; --ok:#1a7f37;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,"Noto Sans KR",sans-serif;
+    }
+    .wrap{max-width:980px;margin:28px auto;padding:0 14px}
+    .card{
+      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:16px; margin:12px 0;
+    }
+    h1{font-size:18px;margin:0 0 10px}
+    .note{
+      background:#fff7d6;border:1px solid #ffe08a;color:#5a4600;
+      padding:12px;border-radius:14px; font-size:13px; line-height:1.45;
+    }
+    .grid{
+      display:grid; gap:10px; align-items:center;
+      grid-template-columns:170px 1fr;
+    }
+    label{font-size:13px;color:#333}
+    input,select,textarea{
+      width:100%; padding:11px 12px; border:1px solid var(--line);
+      border-radius:12px; font-size:14px; outline:none; background:#fff;
+    }
+    input:focus,select:focus,textarea:focus{border-color:#9bb6ff; box-shadow:0 0 0 3px rgba(43,108,255,.12)}
+    textarea{min-height:92px; resize:vertical}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    button{
+      border:0;border-radius:12px;padding:11px 14px;font-weight:900;cursor:pointer;
+      font-size:14px;
+    }
+    .primary{background:var(--primary);color:#fff}
+    .ghost{background:var(--primary2);color:var(--primary)}
     .danger{background:#ffecec;color:#d21b1b}
-    .muted{color:#666;font-size:13px;line-height:1.4;margin-top:10px}
-    .hide{display:none}
+    .muted{color:var(--muted);font-size:13px;line-height:1.45}
     .msg{margin-top:10px;font-size:14px}
-    .ok{color:#1a7f37}
-    .err{color:#b42318}
-    .topnote{background:#fff7d6;border:1px solid #ffe08a;color:#5a4600;padding:10px 12px;border-radius:12px;margin-bottom:12px}
-    code{background:#f2f4f8;padding:2px 6px;border-radius:8px}
+    .ok{color:var(--ok)}
+    .err{color:var(--danger)}
+    .hide{display:none}
+
+    .sectionTitle{font-weight:950;margin:16px 0 8px}
+    .kpis{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .kpi{
+      flex:1 1 240px;
+      border:1px solid #eef0f6;border-radius:14px;padding:12px;
+      background:#fbfcff;
+    }
+    .kpi .label{font-size:12px;color:#667; font-weight:900}
+    .kpi .value{font-size:20px;font-weight:950;margin-top:4px}
+    .kpi .sub{font-size:12px;color:#666;margin-top:4px}
+
+    .filters{
+      display:grid; gap:10px;
+      grid-template-columns:1fr 1fr;
+      margin-top:8px;
+    }
+    .filterRow{border:1px solid #eef0f6;border-radius:14px;padding:12px;background:#fbfcff}
+    .filterRow .title{font-size:12px;color:#667;font-weight:950;margin-bottom:8px}
+    .filterGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .filterHint{margin-top:8px;font-size:12px;color:#666}
+
+    .tableWrap{overflow:auto; border:1px solid #eef2f8; border-radius:14px}
+    table{width:100%; border-collapse:collapse; min-width:860px; background:#fff}
+    th,td{padding:10px 10px; border-bottom:1px solid #f0f2f7; font-size:13px; text-align:left; vertical-align:top}
+    th{position:sticky; top:0; background:#fafbff; z-index:1; border-bottom:1px solid #e6e8f0}
+    .badge{
+      display:inline-block; padding:4px 8px; border-radius:999px;
+      background:#f2f4ff; color:#2b6cff; font-size:12px; font-weight:950;
+      white-space:nowrap;
+    }
+
+    /* 모바일 반응형 */
+    @media (max-width: 560px){
+      .wrap{margin:18px auto}
+      .grid{grid-template-columns:1fr}
+      .filters{grid-template-columns:1fr}
+      label{font-size:12px}
+      h1{font-size:17px}
+      button{width:100%}
+      .btns{gap:8px}
+      input,select,textarea{font-size:16px} /* iOS 확대 방지 */
+      table{min-width:760px}
+    }
+
+    /* ===== 인쇄(A4) ===== */
+    @page { size: A4; margin: 12mm; }
+    @media print{
+      body{background:#fff}
+      .wrap{max-width:none;margin:0;padding:0}
+      .note, #loginCard, .btns, #submitMsg, #loginMsg { display:none !important; }
+      .card{box-shadow:none;border-radius:0;margin:0;padding:0}
+      .filterRow{border:0;background:#fff;padding:0;margin:0}
+      .filters{grid-template-columns:1fr}
+      .filterHint{display:none}
+      input,select,textarea{border:0;padding:0}
+      .kpis{display:flex}
+      .kpi{border:1px solid #ddd;background:#fff}
+      th{position:static;background:#f5f5f5}
+      .tableWrap{border:0}
+      .badge{border:1px solid #bbb;background:#fff;color:#000}
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="topnote">
-      <div style="font-weight:700;margin-bottom:4px;">안내</div>
-      <div style="font-size:13px;line-height:1.4;">
-        ※ <b>나이스(NEIS)에 자동 누적되는 연수</b>는 입력하지 마세요.<br/>
-        ※ 제출 후 표시되는 <b>접수번호</b>를 메모해 두세요.
-      </div>
+    <div class="note">
+      <b>안내</b><br/>
+      • 이 페이지는 <b>나이스(NEIS)에 자동 누적되지 않는 연수</b>만 기록합니다.<br/>
+      • <b>증빙서류(PDF, 공문 등)는 이 시스템에서 제출하지 않습니다.</b> 증빙자료는 <b>연수 담당자에게 별도 제출</b>해주세요.
     </div>
 
     <!-- LOGIN -->
     <div id="loginCard" class="card">
       <h1>교사 인증</h1>
-      <div class="row">
+      <div class="grid">
         <label>이름</label>
-        <input id="teacher" placeholder="예: 홍길동" />
-      </div>
-      <div class="row">
+        <input id="teacher" placeholder="예: 정상화" autocomplete="name" />
+
         <label>PIN(4자리)</label>
-        <input id="pin" inputmode="numeric" maxlength="4" placeholder="0000" />
+        <input id="pin" inputmode="numeric" maxlength="4" placeholder="숫자 4자리" autocomplete="one-time-code" />
       </div>
+
       <div class="btns">
-        <button class="primary" onclick="login()">로그인</button>
+        <button class="primary" id="loginBtn" type="button">로그인</button>
       </div>
       <div id="loginMsg" class="msg"></div>
+      <div class="muted" style="margin-top:8px;">
+        ※ 처음 로그인하는 경우, 입력한 PIN이 자동으로 등록됩니다.
+      </div>
     </div>
 
     <!-- FORM -->
     <div id="formCard" class="card hide">
       <h1>연수 입력</h1>
 
-      <div class="row">
+      <div class="grid">
         <label>로그인 사용자</label>
         <input id="who" disabled />
-      </div>
 
-      <div class="row">
         <label>연수 일자</label>
         <input id="date" type="date" />
-      </div>
 
-      <div class="row">
         <label>연수 시간</label>
         <input id="hours" type="number" min="0.5" step="0.5" placeholder="예: 3" />
-      </div>
 
-      <div class="row">
         <label>연수명</label>
         <input id="title" placeholder="예: 2025 나이스 담당자 맞춤형 연수" />
-      </div>
 
-      <div class="row">
         <label>유형</label>
         <select id="type">
           <option value="">선택</option>
@@ -87,28 +168,67 @@
           <option value="교내 자체 연수">교내 자체 연수</option>
           <option value="기타(NEIS 미연동)">기타(NEIS 미연동)</option>
         </select>
-      </div>
 
-      <div class="row">
         <label>비고</label>
         <textarea id="notes" placeholder="선택 입력"></textarea>
       </div>
 
       <div class="btns">
-        <button class="primary" onclick="submitEntry()">제출</button>
-        <button class="ghost" onclick="logout()">로그아웃</button>
+        <button class="primary" id="submitBtn" type="button">제출</button>
+        <button class="ghost" id="refreshBtn" type="button">목록 새로고침</button>
+        <button class="ghost" id="printBtn" type="button">A4 출력</button>
+        <button class="danger" id="logoutBtn" type="button">로그아웃</button>
       </div>
 
       <div id="submitMsg" class="msg"></div>
-      <div class="muted">
-        (증빙 PDF 업로드 연결은 다음 단계에서 <b>접수번호(reqId)</b> 기반으로 붙이면 됩니다.)
+
+      <div class="sectionTitle">기간 선택(출력/합계 기준)</div>
+      <div class="filters">
+        <div class="filterRow">
+          <div class="title">시작일 ~ 종료일</div>
+          <div class="filterGrid">
+            <input id="fromDate" type="date" />
+            <input id="toDate" type="date" />
+          </div>
+          <div class="filterHint">※ 비워두면 전체 기간으로 계산합니다.</div>
+        </div>
+
+        <div class="filterRow">
+          <div class="title">빠른 선택</div>
+          <div class="btns" style="margin-top:0">
+            <button class="ghost" id="btnThisYear" type="button">올해</button>
+            <button class="ghost" id="btnLastYear" type="button">작년</button>
+            <button class="ghost" id="btnClearRange" type="button">전체</button>
+          </div>
+        </div>
       </div>
+
+      <div class="sectionTitle">누적 현황(선택한 기간 기준)</div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="label">누적시간</div>
+          <div class="value" id="totalHours">0</div>
+          <div class="sub" id="periodText">기간: 전체</div>
+        </div>
+        <div class="kpi">
+          <div class="label">건수</div>
+          <div class="value" id="totalCount">0</div>
+          <div class="sub">선택한 기간에 포함된 항목 수</div>
+        </div>
+        <div class="kpi">
+          <div class="label">출력 안내</div>
+          <div class="value" style="font-size:14px;font-weight:950;">증빙은 담당자 제출</div>
+          <div class="sub">이 페이지 출력물은 “보조장부” 용도입니다.</div>
+        </div>
+      </div>
+
+      <div class="sectionTitle">내가 등록한 목록 <span class="badge">최대 200개 불러옴</span></div>
+      <div id="listBox" class="muted">(불러오는 중)</div>
     </div>
   </div>
 
 <script>
-  // ✅ 여기에 본인 Apps Script 웹앱 URL 넣기
-  // 예: https://script.google.com/macros/s/AKfycb.../exec
+  // ✅ Apps Script 웹앱 URL
   const API_URL = "https://script.google.com/macros/s/AKfycbya-rEWCoV0hNDvdc5s-7932pGhxMxGals2ok_SBoJLzrHsbNuln-7sUUmYR5xAl37D/exec";
 
   const els = {
@@ -124,70 +244,98 @@
     notes: document.getElementById('notes'),
     loginMsg: document.getElementById('loginMsg'),
     submitMsg: document.getElementById('submitMsg'),
+    listBox: document.getElementById('listBox'),
+
+    fromDate: document.getElementById('fromDate'),
+    toDate: document.getElementById('toDate'),
+    btnThisYear: document.getElementById('btnThisYear'),
+    btnLastYear: document.getElementById('btnLastYear'),
+    btnClearRange: document.getElementById('btnClearRange'),
+
+    totalHours: document.getElementById('totalHours'),
+    totalCount: document.getElementById('totalCount'),
+    periodText: document.getElementById('periodText'),
+
+    loginBtn: document.getElementById('loginBtn'),
+    submitBtn: document.getElementById('submitBtn'),
+    refreshBtn: document.getElementById('refreshBtn'),
+    printBtn: document.getElementById('printBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
   };
+
+  let allItems = [];      // 서버에서 받은 전체(최근 200개)
+  let viewItems = [];     // 기간 필터 적용된 화면 표시 목록
 
   function setMsg(el, text, ok=true) {
     el.className = "msg " + (ok ? "ok" : "err");
     el.textContent = text || "";
   }
 
-  function getToken() {
-    return localStorage.getItem('sessToken') || "";
+  function esc(s){
+    return String(s ?? '').replace(/[&<>"']/g, m => (
+      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]
+    ));
   }
 
-  function setToken(t) {
-    localStorage.setItem('sessToken', t);
-  }
-
-  function clearToken() {
+  function getToken(){ return localStorage.getItem('sessToken') || ""; }
+  function setToken(t){ localStorage.setItem('sessToken', t); }
+  function clearToken(){
     localStorage.removeItem('sessToken');
     localStorage.removeItem('sessTeacher');
   }
 
-  function showApp() {
+  function showApp(){
     const t = getToken();
     const name = localStorage.getItem('sessTeacher') || "";
-    if (t && name) {
+    if (t && name){
       els.loginCard.classList.add('hide');
       els.formCard.classList.remove('hide');
       els.who.value = name;
     } else {
       els.formCard.classList.add('hide');
       els.loginCard.classList.remove('hide');
+      els.pin.value = "";
     }
   }
 
-  async function post(path, payload) {
+  async function post(path, payload){
     const url = API_URL + "?path=" + encodeURIComponent(path);
     const res = await fetch(url, {
       method: "POST",
-      // Apps Script 호환성 때문에 text/plain 권장
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     });
     return await res.json();
   }
 
-  async function login() {
+  async function login(){
     setMsg(els.loginMsg, "");
     const teacher = els.teacher.value.trim();
     const pin = els.pin.value.trim();
 
     const r = await post("auth", { teacher, pin });
-    if (!r.ok) {
-      setMsg(els.loginMsg, "로그인 실패", false);
+    if (!r.ok){
+      const msg =
+        (r.error === "no_user") ? "등록된 이름이 아닙니다." :
+        (r.error === "inactive_user") ? "비활성 사용자입니다." :
+        "로그인 실패";
+      setMsg(els.loginMsg, msg, false);
       return;
     }
+
     setToken(r.token);
     localStorage.setItem('sessTeacher', r.teacher);
-    setMsg(els.loginMsg, "로그인 성공", true);
+    setMsg(els.loginMsg, r.first_set ? "PIN 등록 완료! 로그인 성공" : "로그인 성공", true);
+
     showApp();
+    await refreshList();
+    els.date.focus();
   }
 
-  async function submitEntry() {
+  async function submitEntry(){
     setMsg(els.submitMsg, "");
-
     const token = getToken();
+
     const payload = {
       token,
       date: els.date.value,
@@ -198,31 +346,171 @@
     };
 
     const r = await post("submit", payload);
-    if (!r.ok) {
+    if (!r.ok){
       setMsg(els.submitMsg, "제출 실패: " + (r.error || ""), false);
-      if (r.error === "session_expired") {
-        clearToken();
-        showApp();
-      }
+      if (r.error === "session_expired"){ clearToken(); showApp(); }
       return;
     }
+
     setMsg(els.submitMsg, "등록 완료! 접수번호: " + r.reqId, true);
 
-    // 입력값 일부 초기화(선택)
     els.title.value = "";
     els.notes.value = "";
     els.hours.value = "";
     els.type.value = "";
+
+    await refreshList();
+    els.date.focus();
   }
 
-  function logout() {
+  function ymdToNum(ymd){
+    // 'YYYY-MM-DD' -> number YYYYMMDD (비교용)
+    if (!ymd) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
+    if (!m) return null;
+    return Number(m[1] + m[2] + m[3]);
+  }
+
+  function applyRangeFilter(){
+    const fromN = ymdToNum(els.fromDate.value);
+    const toN = ymdToNum(els.toDate.value);
+
+    viewItems = allItems.filter(it => {
+      const dN = ymdToNum(String(it.date || ''));
+      if (!dN) return false;
+      if (fromN && dN < fromN) return false;
+      if (toN && dN > toN) return false;
+      return true;
+    });
+
+    renderSummaryAndTable();
+  }
+
+  function renderSummaryAndTable(){
+    // 요약
+    const sum = viewItems.reduce((acc, it) => acc + (Number(it.hours) || 0), 0);
+    els.totalHours.textContent = (Math.round(sum * 10) / 10).toString();
+    els.totalCount.textContent = String(viewItems.length);
+
+    const from = els.fromDate.value;
+    const to = els.toDate.value;
+    els.periodText.textContent = `기간: ${from || '전체'} ~ ${to || '전체'}`;
+
+    // 테이블
+    if (viewItems.length === 0){
+      els.listBox.innerHTML = "(선택한 기간에 해당하는 항목이 없습니다.)";
+      return;
+    }
+
+    const html = `
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:110px;">일자</th>
+              <th style="min-width:280px;">연수명</th>
+              <th style="min-width:70px;">시간</th>
+              <th style="min-width:150px;">유형</th>
+              <th style="min-width:90px;">접수번호</th>
+              <th style="min-width:220px;">비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${viewItems.map(it => `
+              <tr>
+                <td>${esc(it.date)}</td>
+                <td>${esc(it.title)}</td>
+                <td>${esc(it.hours)}</td>
+                <td>${esc(it.type)}</td>
+                <td><span class="badge">${esc(it.reqId)}</span></td>
+                <td>${esc(it.notes || '')}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+    els.listBox.innerHTML = html;
+  }
+
+  async function refreshList(){
+    const token = getToken();
+    if (!token){ els.listBox.textContent = "(로그인 필요)"; return; }
+
+    els.listBox.textContent = "(불러오는 중)";
+    const r = await post("list", { token, limit: 200 });
+
+    if (!r.ok){
+      els.listBox.textContent = "(목록 불러오기 실패: " + (r.error || "") + ")";
+      if (r.error === "session_expired"){ clearToken(); showApp(); }
+      return;
+    }
+
+    allItems = (r.items || []);
+    // 기본: 전체 범위(필터 비었으면 전체)
+    applyRangeFilter();
+  }
+
+  function setYearRange(year){
+    const from = `${year}-01-01`;
+    const to = `${year}-12-31`;
+    els.fromDate.value = from;
+    els.toDate.value = to;
+    applyRangeFilter();
+  }
+
+  function clearRange(){
+    els.fromDate.value = "";
+    els.toDate.value = "";
+    applyRangeFilter();
+  }
+
+  function printA4(){
+    // 인쇄 전에 최신 적용
+    applyRangeFilter();
+    window.print();
+  }
+
+  function logout(){
     clearToken();
     showApp();
+    setMsg(els.loginMsg, "", true);
   }
 
-  // 자동 로그인(토큰 있으면)
+  // Enter 키: 로그인/제출
+  function wireEnterKeys(){
+    [els.teacher, els.pin].forEach(el => {
+      el.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter'){ ev.preventDefault(); login(); }
+      });
+    });
+
+    [els.date, els.hours, els.title, els.type].forEach(el => {
+      el.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter'){ ev.preventDefault(); submitEntry(); }
+      });
+    });
+  }
+
+  // 이벤트 연결
+  els.loginBtn.addEventListener('click', login);
+  els.submitBtn.addEventListener('click', submitEntry);
+  els.refreshBtn.addEventListener('click', refreshList);
+  els.printBtn.addEventListener('click', printA4);
+  els.logoutBtn.addEventListener('click', logout);
+
+  els.fromDate.addEventListener('change', applyRangeFilter);
+  els.toDate.addEventListener('change', applyRangeFilter);
+
+  // 빠른 선택 (브라우저의 현재 연도 기준)
+  els.btnThisYear.addEventListener('click', () => setYearRange(new Date().getFullYear()));
+  els.btnLastYear.addEventListener('click', () => setYearRange(new Date().getFullYear() - 1));
+  els.btnClearRange.addEventListener('click', clearRange);
+
+  // 초기화
   showApp();
+  wireEnterKeys();
+  if (getToken()) refreshList();
 </script>
 </body>
 </html>
-
